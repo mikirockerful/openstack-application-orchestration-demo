@@ -1,0 +1,148 @@
+heat_template_version: 2017-02-24
+
+description: Crea dos redes privadas, un router y una instancia conectada a las dos redes privadas
+
+parameters:
+
+  flavor:
+    type: string
+    description: Flavor de la instancia
+    default: m1.tiny
+    constraints:
+      - allowed_values: [m1.nano, m1.tiny, m1.small, m1.large]
+        description: Value must be one of m1.tiny, m1.small or m1.large
+  
+  image:
+    type: string
+    default: cirros-0.3.4-x86_64-vnx
+    description: Nombre de la imagen
+  
+  public_net_name:
+    type: string
+    default: ExtNet
+    description: Nombre de la red publica
+
+  private_net_name: 
+    type: string 
+    description: Nombre de la red privada 1
+
+  private_subnet_name: 
+    type: string 
+    description: Nombre de la subred privada 1
+
+  private_subnet_cidr: 
+    type: string 
+    description: CIDR de la subred privada 1
+ 
+  private_subnet_gateway: 
+    type: string 
+    description: Pasarela de la subred privada 1
+
+  private_net_2_name: 
+    type: string 
+    description: Nombre de la red privada 2
+
+  private_subnet_2_name: 
+    type: string 
+    description: Nombre de la subred privada 2
+
+  private_subnet_2_cidr: 
+    type: string 
+    description: CIDR de la subred privada 2
+
+resources:
+
+  clave_generada:
+    type: OS::Nova::KeyPair
+    properties:
+      name: clave_generada
+      save_private_key: true
+
+  instance0:
+    type: OS::Nova::Server
+    depends_on: [ clave_generada ]
+    properties:
+      name: instance0
+      image: { get_param: image }
+      flavor: { get_param: flavor }
+      key_name: { get_resource: clave_generada }
+      networks:
+        - port: { get_resource: instance0_port0 }
+        - port: { get_resource: instance0_port1 }
+
+  instance0_port0:
+    type: OS::Neutron::Port
+    properties:
+      network_id: { get_resource: private_net }
+      security_groups:
+        - default
+      fixed_ips:
+        - subnet_id: { get_resource: private_subnet }
+
+  instance0_port1:
+    type: OS::Neutron::Port
+    properties:
+      network_id: { get_resource: private_net_2 }
+      security_groups:
+        - default
+      fixed_ips:
+        - subnet_id: { get_resource: private_subnet_2 }
+
+  instance0_public:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network_id: { get_param: public_net_name }
+      port_id: { get_resource: instance0_port0 }
+
+  private_net: 
+    type: OS::Neutron::Net 
+    properties: 
+      name: { get_param: private_net_name }
+
+  private_subnet: 
+    type: OS::Neutron::Subnet 
+    properties: 
+      name: { get_param: private_subnet_name } 
+      network_id: { get_resource: private_net } 
+      cidr: { get_param: private_subnet_cidr } 
+      gateway_ip: { get_param: private_subnet_gateway }
+
+  private_net_2: 
+    type: OS::Neutron::Net 
+    properties: 
+      name: { get_param: private_net_2_name }
+
+  private_subnet_2: 
+    type: OS::Neutron::Subnet 
+    properties: 
+      name: { get_param: private_subnet_2_name } 
+      network_id: { get_resource: private_net_2 } 
+      cidr: { get_param: private_subnet_2_cidr } 
+
+  mi_router:
+    type: OS::Neutron::Router
+    properties:
+      name: mi_router
+      external_gateway_info: 
+        network: { get_param: public_net_name }
+
+  interfaz_router:
+    type: OS::Neutron::RouterInterface
+    depends_on: [ mi_router ]
+    properties:
+      router: { get_resource: mi_router }
+      subnet: { get_resource: private_subnet }
+
+outputs:
+
+  instance0_private_ip:
+    description: Direccion IP en la red privada de la maquina
+    value: { get_attr: [ instance0, first_address ] }
+
+  instance0_public_ip:
+    description: IP flotante externa de la maquina
+    value: { get_attr: [ instance0_public, floating_ip_address ] }
+
+  private_key:
+    description: Clave privada clave_generada
+    value: { get_attr: [ clave_generada, private_key ] }

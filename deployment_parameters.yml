@@ -1,0 +1,11 @@
+parameters:
+  image: cirros-0.3.4-x86_64-vnx
+  flavor: m1.tiny
+  private_net_name: red_privada_1
+  private_subnet_name: subred_privada_1
+  private_subnet_cidr: 192.168.0.0/24
+  private_subnet_gateway: 192.168.0.1
+  private_net_2_name: red_privada_2
+  private_subnet_2_name: subred_privada_2
+  private_subnet_2_cidr: 172.16.0.0/24
+  public_net_name: ExtNet
