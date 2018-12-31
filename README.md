@@ -11,14 +11,19 @@ sudo vnx -f openstack_lab.xml -x start-all,load-img
 vnx_config_nat ExtNet <interfaz_externo>
 ```
 
-* Currently, the external network needs to be manually created. To do so, SSH to the controller and execute:
+* Copy the project files and templates to that computer. The deployment is intended to be run from the host (project requirement 1), as the "demo" user (project requirement 2).
+
+* Currently, the external network needs to be manually created (provider networks require "admin" privileges, because they connect to the physical infrastructure). We need to set the environment variables properly and create the network:
 ```
-source bin/admin-openrc.sh
+source admin-openrc.sh
 openstack network create --share --external --provider-physical-network provider --provider-network-type flat ExtNet
 openstack subnet create --network ExtNet --gateway 10.0.10.1 --dns-nameserver 10.0.10.1 --subnet-range 10.0.10.0/24 --allocation-pool start=10.0.10.100,end=10.0.10.200 ExtSubNet
 ```
 
-* Then, copy the HOT templates to the controller node. One option is to SCP them three times: your computer -> DIT lab jump server -> your assigned server -> controller node. Another option is to copy/paste the contents. If you do so, remember to check the YAML syntax.
+* Release the admin privileges and set environment to "demo" user:
+```
+source demo-openrc.sh
+```
 
 * Finally, deploy the stack from the controller with the following command. Remember that you need to have the correct environment variables (you can reset them with "source bin/admin-openrc.sh"):
 ```

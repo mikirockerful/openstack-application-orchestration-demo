@@ -73,11 +73,9 @@ resources:
       port_id: { get_resource: instance0_port0 }
 
   private_net: 
-    type: OS::Neutron::ProviderNet 
+    type: OS::Neutron::Net 
     properties: 
       name: { get_param: private_net_name }
-      # La version de heat de febrero 2017 no soporta vxlan https://bugs.launchpad.net/heat/+bug/1692445
-      network_type: vlan
 
   private_subnet: 
     type: OS::Neutron::Subnet 
