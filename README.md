@@ -1,7 +1,7 @@
 # openstack-application-orchestration-demo
 Automatic deployment of a custom application on an OpenStack scenario
 
-# Execution instructions
+# Deployment instructions
 * On a DIT lab computer, create the OpenStack virtual environment as usual:
 ```
 /mnt/vnx/repo/cnvr/bin/get-openstack-tutorial.sh
@@ -11,7 +11,7 @@ sudo vnx -f openstack_lab.xml -x start-all,load-img
 vnx_config_nat ExtNet <interfaz_externo>
 ```
 
-* Copy the project files and templates to that computer. The deployment is intended to be run from the host (project requirement 1), as the "demo" user (project requirement 2).
+* Copy the files "admin-openrc.sh", "demo-openrc.sh" and the contents of the "deployment" folder to that computer. The deployment is intended to be run from the host (project requirement 1), as the "demo" user (project requirement 2).
 
 * Currently, the external network needs to be manually created (provider networks require "admin" privileges, because they connect to the physical infrastructure). We need to set the environment variables properly and create the network:
 ```
@@ -33,4 +33,27 @@ openstack stack create -t deployment.yaml -e deployment_parameters.yaml <nombre_
 **Check HOT templates syntax:** You can use the "--dry-run" option of the creation command or use:
 ```
 openstack orchestration template validate -t <file.yaml>
+```
+
+# Image creation
+Deployment scripts require that pre-built images exist in the Glance image service. Image creation should be a one-time step to be performed independently from deployment, as per project requirement 3.
+
+The "image_creation" folder contains the HOT templates and cloud-init files required for image creation. To create the images:
+
+* Start from an OpenStack scenario with ExtNet created by an admin user (see "Deployment instructions").
+
+* Copy the files from the "image_creation" folder and source the "demo-openrc.sh" script in the computer's lab (i.e. the host)
+
+* Run the desired stack(s). For instance:
+```
+openstack stack create -t install_zookeeper.yaml -e parameters.yaml <nombre_stack>
+```
+
+* Log into the OpenStack web interface. Check the result of the stack creation in "orchestration -> stacks". Take into account that software installations may take some minutes. The templates should create running instances, wait until they are active and have installed all the software.
+
+* From the OpenStack "Compute -> Instances" menu, use the option "Create snapshot". Give the snapshot the same name that is used in the "deployment" files. When the process finishes, the image is ready to be used.
+
+* Delete the stack to release resources. The created image will not be erased, as it was not part of the HOT template. Deletion can be done from the web interface or by running:
+```
+openstack stack delete <nombre_stack>
 ```
