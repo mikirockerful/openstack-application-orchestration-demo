@@ -13,8 +13,8 @@ parameters:
     description: Flavor de la instancia
     default: m1.nano
     constraints:
-      - allowed_values: [m1.nano, m1.tiny, m1.smaller]
-        description: Value must be one of m1.nano, m1.tiny or m1.smaller
+      - allowed_values: [m1.nano, m1.tiny, m1.small, m1.large]
+        description: Value must be one of m1.tiny, m1.small or m1.large
   
   image:
     type: string

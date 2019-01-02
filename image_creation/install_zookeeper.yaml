@@ -1,0 +1,93 @@
+heat_template_version: 2017-02-24
+
+description: Instalacion software para Zookeeper con cloud-init
+parameters:
+  public_net_name:
+    type: string
+    default: ExtNet
+    description: Nombre de la red publica
+
+  private_net_name: 
+    type: string 
+    description: Nombre de la red privada
+
+  private_subnet_name: 
+    type: string 
+    description: Nombre de la subred privada
+
+  private_subnet_cidr: 
+    type: string 
+    description: CIDR de la subred privada
+ 
+  private_subnet_gateway: 
+    type: string 
+    description: Pasarela de la subred privada
+
+resources:
+  zookeeper_init:
+    type: OS::Heat::SoftwareConfig
+    properties:
+        group: ungrouped
+        config: { get_file: cloud-init.yaml }
+
+  zookeeper_init_mime:
+    type: OS::Heat::MultipartMime
+    properties:
+      parts:
+        - config: {get_resource: zookeeper_init}
+
+  zookeeper_instance:
+    type: OS::Nova::Server
+    depends_on: [ mi_router, zk_server_public, zk_server_port0, private_net, private_subnet ]
+    properties:
+      image: xenial-server-cloudimg-amd64-vnx
+      flavor: m1.smaller
+      user_data_format: SOFTWARE_CONFIG
+      user_data:
+        get_resource: zookeeper_init_mime
+      networks:
+        - port: { get_resource: zk_server_port0 }
+
+  zk_server_port0:
+    type: OS::Neutron::Port
+    properties:
+      network_id: { get_resource: private_net }
+      security_groups:
+        - default
+      fixed_ips:
+        - subnet_id: { get_resource: private_subnet }
+
+  zk_server_public:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network_id: { get_param: public_net_name }
+      port_id: { get_resource: zk_server_port0 }
+
+  private_net: 
+    type: OS::Neutron::Net 
+    properties: 
+      name: { get_param: private_net_name }
+
+  private_subnet: 
+    type: OS::Neutron::Subnet 
+    properties: 
+      name: { get_param: private_subnet_name } 
+      network_id: { get_resource: private_net } 
+      cidr: { get_param: private_subnet_cidr } 
+      gateway_ip: { get_param: private_subnet_gateway }
+      dns_nameservers:
+        - 8.8.8.8
+
+  mi_router:
+    type: OS::Neutron::Router
+    properties:
+      name: mi_router
+      external_gateway_info: 
+        network: { get_param: public_net_name }
+
+  interfaz_router:
+    type: OS::Neutron::RouterInterface
+    depends_on: [ mi_router ]
+    properties:
+      router: { get_resource: mi_router }
+      subnet: { get_resource: private_subnet }
