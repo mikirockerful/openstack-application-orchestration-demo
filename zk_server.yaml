@@ -1,6 +1,6 @@
 heat_template_version: 2017-02-24
 
-description: Plantilla de despliegue de los servidores de aplicacion
+description: Plantilla de despliegue de los servidores de zookeeper
 
 parameters:
 
@@ -29,13 +29,6 @@ parameters:
     type: string 
     description: Nombre de la subred privada 1
 
-  private_net_2_name: 
-    type: string 
-    description: Nombre de la red privada 2
-
-  private_subnet_2_name: 
-    type: string 
-    description: Nombre de la subred privada 2
 
 resources:
 
@@ -49,7 +42,6 @@ resources:
       #key_name: { get_resource: clave_generada }
       networks:
         - port: { get_resource: app_server_port0 }
-        - port: { get_resource: app_server_port1 }
 
   app_server_port0:
     type: OS::Neutron::Port
@@ -60,11 +52,7 @@ resources:
       fixed_ips:
         - subnet_id: { get_param: private_subnet_name }
 
-  app_server_port1:
-    type: OS::Neutron::Port
-    properties:
-      network_id: { get_param: private_net_2_name }
-      security_groups:
-        - default
-      fixed_ips:
-        - subnet_id: { get_param: private_subnet_2_name }
+outputs:
+  first_address:
+    description: Direccion IP en la red privada de la maquina
+    value: { get_attr: [ app_server, first_address ] }

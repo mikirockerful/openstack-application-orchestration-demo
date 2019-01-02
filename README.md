@@ -27,10 +27,10 @@ source demo-openrc.sh
 
 * Finally, deploy the stack from the controller with the following command. Remember that you need to have the correct environment variables (you can reset them with "source bin/admin-openrc.sh"):
 ```
-openstack stack create -t deployment.yml -e deployment_parameters.yml <nombre_stack>
+openstack stack create -t deployment.yaml -e deployment_parameters.yaml <nombre_stack>
 ```
 
 **Check HOT templates syntax:** You can use the "--dry-run" option of the creation command or use:
 ```
-openstack orchestration template validate -t <file.yml>
+openstack orchestration template validate -t <file.yaml>
 ```

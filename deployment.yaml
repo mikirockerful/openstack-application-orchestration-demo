@@ -1,6 +1,6 @@
 heat_template_version: 2017-02-24
 
-description: Crea dos redes privadas, un router y una instancia conectada a las dos redes privadas
+description: Crea dos redes privadas, un router, el admin server y 3 app server
 
 parameters:
 
@@ -94,6 +94,65 @@ resources:
       floating_network_id: { get_param: public_net_name }
       port_id: { get_resource: admin_server_port0 }
 
+  app_server_1:
+    type: app_server.yaml
+    depends_on: [ private_net, private_subnet, private_net_2, private_subnet_2 ]
+    properties:
+      server_name: app_server_1
+      private_net_name: { get_param: private_net_name }
+      private_subnet_name: { get_param: private_subnet_name }
+      private_net_2_name: { get_param: private_net_2_name }
+      private_subnet_2_name: { get_param: private_subnet_2_name }
+  app_server_2:
+    type: app_server.yaml
+    depends_on: [ private_net, private_subnet, private_net_2, private_subnet_2 ]
+    properties:
+      server_name: app_server_2
+      private_net_name: { get_param: private_net_name }
+      private_subnet_name: { get_param: private_subnet_name }
+      private_net_2_name: { get_param: private_net_2_name }
+      private_subnet_2_name: { get_param: private_subnet_2_name }
+  app_server_3:
+    type: app_server.yaml
+    depends_on: [ private_net, private_subnet, private_net_2, private_subnet_2 ]
+    properties:
+      server_name: app_server_3
+      private_net_name: { get_param: private_net_name }
+      private_subnet_name: { get_param: private_subnet_name }
+      private_net_2_name: { get_param: private_net_2_name }
+      private_subnet_2_name: { get_param: private_subnet_2_name }
+
+  zk_server_1:
+    type: zk_server.yaml
+    depends_on: [ private_net_2, private_subnet_2 ]
+    properties:
+      server_name: zk_server_1
+      private_net_name: { get_param: private_net_2_name }
+      private_subnet_name: { get_param: private_subnet_2_name }
+  zk_server_2:
+    type: zk_server.yaml
+    depends_on: [ private_net_2, private_subnet_2 ]
+    properties:
+      server_name: zk_server_2
+      private_net_name: { get_param: private_net_2_name }
+      private_subnet_name: { get_param: private_subnet_2_name }
+  zk_server_3:
+    type: zk_server.yaml
+    depends_on: [ private_net_2, private_subnet_2 ]
+    properties:
+      server_name: zk_server_3
+      private_net_name: { get_param: private_net_2_name }
+      private_subnet_name: { get_param: private_subnet_2_name }
+
+  db_server:
+    type: zk_server.yaml
+    depends_on: [ private_net_2, private_subnet_2 ]
+    properties:
+      server_name: db_server
+      private_net_name: { get_param: private_net_2_name }
+      private_subnet_name: { get_param: private_subnet_2_name }
+      image: cirros-0.3.4-x86_64-vnx
+
   private_net: 
     type: OS::Neutron::Net 
     properties: 
@@ -143,6 +202,20 @@ outputs:
     description: IP flotante externa de la maquina
     value: { get_attr: [ admin_server_public, floating_ip_address ] }
 
-  private_key:
+  zk_server_1_ip:
+    description: Direccion IP en la red privada de la maquina
+    value: { get_attr: [ zk_server_1, first_address ] }
+  zk_server_2_ip:
+    description: Direccion IP en la red privada de la maquina
+    value: { get_attr: [ zk_server_2, first_address ] }
+  zk_server_3_ip:
+    description: Direccion IP en la red privada de la maquina
+    value: { get_attr: [ zk_server_3, first_address ] }
+
+  db_server_ip:
+    description: Direccion IP en la red privada de la maquina
+    value: { get_attr: [ db_server, first_address ] }
+
+  admin_private_key:
     description: Clave privada clave_generada
     value: { get_attr: [ clave_generada, private_key ] }
