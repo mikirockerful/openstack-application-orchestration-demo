@@ -50,6 +50,10 @@ parameters:
     type: string 
     description: CIDR de la subred privada 2
 
+  admin_server_ssh_port:
+    type: string
+    description: Puerto SSH del servidor de administración
+
 resources:
 
   clave_generada:
@@ -192,11 +196,54 @@ resources:
       router: { get_resource: mi_router }
       subnet: { get_resource: private_subnet }
 
+  mi_firewall:
+    type: OS::Neutron::Firewall
+    properties:
+      firewall_policy_id: { get_resource: firewall_policy }
+
+  firewall_policy:
+    type: OS::Neutron::FirewallPolicy
+    properties:
+      description: Conjunto de reglas necesarias para gestionar el acceso hacia/desce la red interna
+      firewall_rules: [get_resource: firewall_rule_1, get_resource: firewall_rule_3 ]#falta añadir la firewall_rule_2 cuando esté el balanceador
+
+  firewall_rule_1:
+    type: OS::Neutron::FirewallRule
+    depends_on: [ private_net, private_subnet, admin_server ]
+    properties:
+      action: allow
+      description: Acceso desde el exterior al puerto SSH de admin
+      destination_ip_address: { get_attr: [ admin_server, networks, { get_param: private_net_name }, 0 ] }
+      destination_port: { get_param: admin_server_ssh_port}
+      protocol: tcp
+
+  #firewall_rule_2:
+    #type: OS::Neutron::FirewallRule
+    #properties:
+      #action: allow
+      #description: Acceso desde el exterior al puerto 80 del balanceador
+      #destination_ip_address: TODO
+      #destination_port: 80
+      #protocol: tcp
+
+  firewall_rule_3:
+    type: OS::Neutron::FirewallRule
+    depends_on: [ private_net, private_subnet ]
+    properties:
+      action: allow
+      description: Acceso desde el interior a cualquier destino por cualquier protocolo
+      protocol: any
+      source_ip_address: {get_param: private_subnet_cidr}
+
 outputs:
 
   admin_server_private_ip:
-    description: Direccion IP en la red privada de la maquina
+    description: Direccion IP en la red privada 2 de la maquina
     value: { get_attr: [ admin_server, first_address ] }
+
+  admin_server_private_ip_net1:
+    description: Direccion IP en la red privada 1 de la maquina
+    value: { get_attr: [ admin_server, networks, { get_param: private_net_name }, 0 ] }
 
   admin_server_public_ip:
     description: IP flotante externa de la maquina
