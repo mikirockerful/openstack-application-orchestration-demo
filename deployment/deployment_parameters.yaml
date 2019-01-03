@@ -10,3 +10,8 @@ parameters:
   private_subnet_2_cidr: 172.16.0.0/24
   public_net_name: ExtNet
   admin_server_ssh_port: 22
+  load_balancer_algorithm: ROUND_ROBIN
+  load_balancer_pool_protocol: HTTP
+  load_balancer_listener_port: 80
+  load_balancer_listener_protocol: HTTP
+  app_server_listening_port: 80

@@ -15,7 +15,7 @@ parameters:
     constraints:
       - allowed_values: [m1.nano, m1.tiny, m1.small, m1.large]
         description: Value must be one of m1.tiny, m1.small or m1.large
-  
+
   image:
     type: string
     default: cirros-0.3.4-x86_64-vnx
@@ -68,3 +68,10 @@ resources:
         - default
       fixed_ips:
         - subnet_id: { get_param: private_subnet_2_name }
+
+outputs:
+
+  app_server:
+    description: Atributos del servidor de aplicaciones
+    value: { get_attr: [ app_server, networks, { get_param: private_net_name }, 0 ] }
+

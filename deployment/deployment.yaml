@@ -1,6 +1,6 @@
 heat_template_version: 2017-02-24
 
-description: Crea dos redes privadas, un router, el admin server y 3 app server
+description: Crea dos redes privadas, un router, el FW, el LB, el admin server y 3 app server
 
 parameters:
 
@@ -11,12 +11,12 @@ parameters:
     constraints:
       - allowed_values: [m1.nano, m1.tiny, m1.small, m1.large]
         description: Value must be one of m1.tiny, m1.small or m1.large
-  
+
   image:
     type: string
     default: cirros-0.3.4-x86_64-vnx
     description: Nombre de la imagen
-  
+
   public_net_name:
     type: string
     default: ExtNet
@@ -33,7 +33,7 @@ parameters:
   private_subnet_cidr: 
     type: string 
     description: CIDR de la subred privada 1
- 
+
   private_subnet_gateway: 
     type: string 
     description: Pasarela de la subred privada 1
@@ -54,6 +54,35 @@ parameters:
     type: string
     description: Puerto SSH del servidor de administración
 
+  load_balancer_algorithm:
+    type: string
+    description: Algoritmo empleado por el balanceador
+    default: ROUND_ROBIN
+    constraints:
+      - allowed_values: [ROUND_ROBIN, LEAST_CONNECTIONS, SOURCE_IP]
+
+  load_balancer_pool_protocol:
+    type: string
+    description: Protocolo con el que trabajará el balanceador
+    default: HTTP
+    constraints:
+      - allowed_values: [TCP, HTTP, HTTPS]
+
+  load_balancer_listener_protocol:
+    type: string
+    description: Protocolo que esuchará el balanceador
+    default: HTTP
+    constraints:
+      - allowed_values: [TCP, HTTP, HTTPS, TERMINATED_HTTPS]
+
+  load_balancer_listener_port:
+    type: string
+    description: Puerto en el que escuchará el balanceador
+
+  app_server_listening_port:
+    type: string
+    description: Puerto en el que los servidores web escuchan
+
 resources:
 
   clave_generada:
@@ -68,7 +97,9 @@ resources:
     properties:
       name: admin_server
       image: { get_param: image }
+      #image: xenial-server-cloudimg-amd64-vnx
       flavor: { get_param: flavor }
+      #flavor: m1.smaller
       key_name: { get_resource: clave_generada }
       networks:
         - port: { get_resource: admin_server_port0 }
@@ -165,9 +196,9 @@ resources:
   private_subnet: 
     type: OS::Neutron::Subnet 
     properties: 
-      name: { get_param: private_subnet_name } 
-      network_id: { get_resource: private_net } 
-      cidr: { get_param: private_subnet_cidr } 
+      name: { get_param: private_subnet_name }
+      network_id: { get_resource: private_net }
+      cidr: { get_param: private_subnet_cidr }
       gateway_ip: { get_param: private_subnet_gateway }
 
   private_net_2: 
@@ -178,9 +209,9 @@ resources:
   private_subnet_2: 
     type: OS::Neutron::Subnet 
     properties: 
-      name: { get_param: private_subnet_2_name } 
-      network_id: { get_resource: private_net_2 } 
-      cidr: { get_param: private_subnet_2_cidr } 
+      name: { get_param: private_subnet_2_name }
+      network_id: { get_resource: private_net_2 }
+      cidr: { get_param: private_subnet_2_cidr }
 
   mi_router:
     type: OS::Neutron::Router
@@ -196,6 +227,59 @@ resources:
       router: { get_resource: mi_router }
       subnet: { get_resource: private_subnet }
 
+  mi_balanceador:
+    type: OS::Neutron::LBaaS::LoadBalancer
+    properties:
+      description: Balanceador de carga sobre los servidores web
+      vip_subnet: { get_resource: private_subnet }
+
+  balanceador_public:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network_id: { get_param: public_net_name }
+      port_id: { get_attr: [ mi_balanceador, vip_port_id ] }
+
+  balanceador_listener:
+    type: OS::Neutron::LBaaS::Listener
+    depends_on: [ mi_balanceador ]
+    properties:
+      description: Configuración de qué y dónde esuchará el balanceador
+      protocol: { get_param: load_balancer_listener_protocol }
+      protocol_port: { get_param: load_balancer_listener_port }
+      loadbalancer: { get_resource: mi_balanceador }
+
+  balanceador_pool:
+    type: OS::Neutron::LBaaS::Pool
+    properties:
+      description: Conjunto de servidores sobre los que se balanceará y algoritmo de balanceo
+      lb_algorithm: {get_param: load_balancer_algorithm}
+      listener: { get_resource: balanceador_listener }
+      protocol: { get_param: load_balancer_pool_protocol }
+
+  balanceador_miembro_1:
+    type: OS::Neutron::LBaaS::PoolMember
+    properties:
+      address: { get_attr: [ app_server_1, app_server ] }
+      pool: { get_resource: balanceador_pool }
+      protocol_port: { get_param: app_server_listening_port }
+      subnet: { get_resource: private_subnet }
+
+  balanceador_miembro_2:
+    type: OS::Neutron::LBaaS::PoolMember
+    properties:
+      address: { get_attr: [ app_server_2, app_server ] }
+      pool: { get_resource: balanceador_pool }
+      protocol_port: { get_param: app_server_listening_port }
+      subnet: { get_resource: private_subnet }
+
+  balanceador_miembro_3:
+    type: OS::Neutron::LBaaS::PoolMember
+    properties:
+      address: { get_attr: [ app_server_3, app_server ] }
+      pool: { get_resource: balanceador_pool }
+      protocol_port: { get_param: app_server_listening_port }
+      subnet: { get_resource: private_subnet }
+
   mi_firewall:
     type: OS::Neutron::Firewall
     properties:
@@ -205,7 +289,7 @@ resources:
     type: OS::Neutron::FirewallPolicy
     properties:
       description: Conjunto de reglas necesarias para gestionar el acceso hacia/desce la red interna
-      firewall_rules: [get_resource: firewall_rule_1, get_resource: firewall_rule_3 ]#falta añadir la firewall_rule_2 cuando esté el balanceador
+      firewall_rules: [get_resource: firewall_rule_1, get_resource: firewall_rule_2, get_resource: firewall_rule_3 ]
 
   firewall_rule_1:
     type: OS::Neutron::FirewallRule
@@ -217,14 +301,14 @@ resources:
       destination_port: { get_param: admin_server_ssh_port}
       protocol: tcp
 
-  #firewall_rule_2:
-    #type: OS::Neutron::FirewallRule
-    #properties:
-      #action: allow
-      #description: Acceso desde el exterior al puerto 80 del balanceador
-      #destination_ip_address: TODO
-      #destination_port: 80
-      #protocol: tcp
+  firewall_rule_2:
+    type: OS::Neutron::FirewallRule
+    properties:
+      action: allow
+      description: Acceso desde el exterior al puerto 80 del balanceador
+      destination_ip_address: { get_attr: [ mi_balanceador, vip_address ] }
+      destination_port: 80
+      protocol: tcp
 
   firewall_rule_3:
     type: OS::Neutron::FirewallRule
@@ -266,3 +350,11 @@ outputs:
   admin_private_key:
     description: Clave privada clave_generada
     value: { get_attr: [ clave_generada, private_key ] }
+
+  balanceador_private_ip:
+    description: Direccion IP en la red privada 1 de la maquina
+    value: { get_attr: [ mi_balanceador, vip_address ] }
+
+  balanceador_public_ip:
+    description: IP flotante externa del balanceador
+    value: { get_attr: [ balanceador_public, floating_ip_address ] }
