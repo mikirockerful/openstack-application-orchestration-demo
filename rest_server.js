@@ -4,7 +4,11 @@ var methodOverride = require('method-override');
 var path = require('path');
 var model = require('./model');
 var zookeeper = require('node-zookeeper-client');
-var ZOOKEEPER_ADDRESS = "";
+// Get Zookeeper IPs and connect to one of them
+var ZOOKEEPER_ADDRESS_1 = process.env.ZOOKEEPER1_IP;
+var ZOOKEEPER_ADDRESS_2 = process.env.ZOOKEEPER2_IP;
+var ZOOKEEPER_ADDRESS_3 = process.env.ZOOKEEPER3_IP;
+
 var znodeId = "";
 
 var app = express();
@@ -13,8 +17,13 @@ var port = 80;
 
 model.init(function() {
     console.log('RESTful Service listening in port', port);
-
-    var client = zookeeper.createClient('localhost:2181');
+    var zk_servers = new Array();
+    zk_servers.push(ZOOKEEPER_ADDRESS_1);
+    zk_servers.push(ZOOKEEPER_ADDRESS_2);
+    zk_servers.push(ZOOKEEPER_ADDRESS_3);
+    var chosenServer = zk_servers[Math.floor(Math.random()*zk_servers.length)];
+    console.log("The chosen zk server is " + chosenServer);
+    var client = zookeeper.createClient(chosenServer+':2181');
     var path = "/members";
  
     client.once('connected', function () {
