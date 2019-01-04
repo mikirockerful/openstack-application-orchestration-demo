@@ -57,3 +57,33 @@ openstack stack create -t install_zookeeper.yaml -e parameters.yaml <nombre_stac
 ```
 openstack stack delete <nombre_stack>
 ```
+
+We can also create an image from an instance through CLI:
+
+* Get instance name:
+```
+openstack server list
+```
+
+* Stop the running instance:
+```
+openstack server stop <instanceName>
+```
+
+* Wait until the instance shows status SHUTOFF:
+```
+openstack server list
+```
+
+* Create the snapshot (aka image):
+```
+openstack server image create <intanceName> --name <imageName>
+```
+
+* Verify that the new image status is ACTIVE:
+```
+openstack image list
+```
+
+
+
