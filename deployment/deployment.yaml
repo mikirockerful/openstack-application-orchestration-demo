@@ -9,8 +9,8 @@ parameters:
     description: Flavor de la instancia
     default: m1.tiny
     constraints:
-      - allowed_values: [m1.nano, m1.tiny, m1.small, m1.large]
-        description: Value must be one of m1.tiny, m1.small or m1.large
+      - allowed_values: [m1.nano, m1.tiny, m1.small, m1.smaller, m1.large]
+        description: Value must be one of m1.tiny, m1.small, m1.smaller or m1.large
 
   image:
     type: string
@@ -91,15 +91,30 @@ resources:
       name: clave_generada
       save_private_key: true
 
+  admin_server_init:
+    type: OS::Heat::SoftwareConfig
+    properties:
+        group: ungrouped
+        config: { get_file: admin-cloud-init.yaml }
+
+  admin_server_init_mime:
+    type: OS::Heat::MultipartMime
+    properties:
+      parts:
+        - config: {get_resource: admin_server_init}
+
   admin_server:
     type: OS::Nova::Server
     depends_on: [ clave_generada ]
     properties:
       name: admin_server
-      image: { get_param: image }
-      #image: xenial-server-cloudimg-amd64-vnx
-      flavor: { get_param: flavor }
-      #flavor: m1.smaller
+      #image: { get_param: image }
+      image: xenial-server-cloudimg-amd64-vnx
+      #flavor: { get_param: flavor }
+      flavor: m1.smaller
+      user_data_format: SOFTWARE_CONFIG
+      user_data:
+        get_resource: admin_server_init_mime
       key_name: { get_resource: clave_generada }
       networks:
         - port: { get_resource: admin_server_port0 }

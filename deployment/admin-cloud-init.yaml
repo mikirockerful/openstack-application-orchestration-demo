@@ -1,0 +1,6 @@
+#cloud-config
+
+# Modify sshd listening port from 22 to 2018
+runcmd:
+  - [ sed, -i, '/Port 22/c\Port 2018', /etc/ssh/sshd_config]
+  - [ service, sshd, restart ]
