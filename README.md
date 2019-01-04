@@ -90,6 +90,7 @@ The SSH connection to the admin server needs to be enabled when needed. There is
 ```
 ./sshFwRule.sh
 ```
+Note: rules are associated with the source IP.
 
 
 
