@@ -1,0 +1,7 @@
+#cloud-config
+
+# Install node and npm
+package_update: true
+packages:
+  - nodejs
+  - npm

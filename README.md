@@ -85,6 +85,8 @@ openstack server image create <intanceName> --name <imageName>
 openstack image list
 ```
 
+#### For the application server image creation, after deploying the stack and before taking the screenshot, also run the script "finishInstall.sh".
+
 # Enabling/disabling SSH firewall rule
 The SSH connection to the admin server needs to be enabled when needed. There is a script that manages the creation and deletion of FW rules to handle this. When executed, it deletes the rule if exists and creates it if not. Go to the project root directory and run:
 ```
