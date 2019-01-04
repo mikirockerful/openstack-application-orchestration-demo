@@ -85,5 +85,12 @@ openstack server image create <intanceName> --name <imageName>
 openstack image list
 ```
 
+# Enabling/disabling SSH firewall rule
+The SSH connection to the admin server needs to be enabled when needed. There is a script that manages the creation and deletion of FW rules to handle this. When executed, it deletes the rule if exists and creates it if not. Go to the project root directory and run:
+```
+./sshFwRule.sh
+```
+
+
 
 

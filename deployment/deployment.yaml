@@ -304,17 +304,17 @@ resources:
     type: OS::Neutron::FirewallPolicy
     properties:
       description: Conjunto de reglas necesarias para gestionar el acceso hacia/desce la red interna
-      firewall_rules: [get_resource: firewall_rule_1, get_resource: firewall_rule_2, get_resource: firewall_rule_3 ]
-
-  firewall_rule_1:
-    type: OS::Neutron::FirewallRule
-    depends_on: [ private_net, private_subnet, admin_server ]
-    properties:
-      action: allow
-      description: Acceso desde el exterior al puerto SSH de admin
-      destination_ip_address: { get_attr: [ admin_server, networks, { get_param: private_net_name }, 0 ] }
-      destination_port: { get_param: admin_server_ssh_port}
-      protocol: tcp
+      #firewall_rules: [ get_resource: firewall_rule_1, get_resource: firewall_rule_2, get_resource: firewall_rule_3 ]
+      firewall_rules: [ get_resource: firewall_rule_2, get_resource: firewall_rule_3 ]
+#  firewall_rule_1:
+#    type: OS::Neutron::FirewallRule
+#    depends_on: [ private_net, private_subnet, admin_server ]
+#    properties:
+#      action: allow
+#      description: Acceso desde el exterior al puerto SSH de admin
+#      destination_ip_address: { get_attr: [ admin_server, networks, { get_param: private_net_name }, 0 ] }
+#      destination_port: { get_param: admin_server_ssh_port}
+#      protocol: tcp
 
   firewall_rule_2:
     type: OS::Neutron::FirewallRule
@@ -373,3 +373,7 @@ outputs:
   balanceador_public_ip:
     description: IP flotante externa del balanceador
     value: { get_attr: [ balanceador_public, floating_ip_address ] }
+
+  fw_policy:
+    description: Politica del FW
+    value: { get_attr: [ firewall_policy, name ]}
