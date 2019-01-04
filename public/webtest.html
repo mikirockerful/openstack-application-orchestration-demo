@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>REST Service Test</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script>
+    $(function() {
+       $.get('/restaurants', function(data) {
+        for (var r in data) {
+          var html = '<tr>' + 
+          '<td><a href="/restaurants/' + data[r].restaurant_id + '">' + data[r].nombre + '</a></td>' +
+          '<td>' + data[r].barrio + '</td>' +
+          '<td>' + data[r].clientes_diarios + '</td>' +
+          '<td>' + Math.round(data[r].precio_medio * 100) / 100 + '</td>' +
+          '<td>' + 
+            '<form action="/restaurants/' + data[r].restaurant_id + '?_method=put" method="post">' +
+              '<span>Clientes diarios: <input type="text" name="clientes_diarios"></span>' +
+              '<span>Precio medio: <input type="text" name="precio_medio"></span>' +
+              '<button type="submit">Update</button>' +
+            '</form>' +
+
+          '</td>' +
+          '<td><a href="/restaurants/' + data[r].restaurant_id + '?_method=delete"> Borrar</a></td>' +
+          '</tr>'
+          $('table').append(html);
+        }
+      });
+    });
+    </script>
+  </head>
+  <body>
+    <form action="/restaurants" method="post">  
+      <p>Create a new restaurant:</p>
+      <span>Name: <input type="text" name="nombre"></span><br>
+      <span>Barrio: <input type="text" name="barrio"></span><br>
+      <span>Clientes diarios: <input type="text" name="clientes_diarios"></span><br>
+      <span>Precio medio: <input type="text" name="precio_medio"></span><br>
+      <button type="submit">Create</button>
+    </form>
+    <br>
+    <br>
+    <table>
+      <tr>
+        <th>Nombre</th>
+        <th>Barrio</th> 
+        <th>Clientes diarios</th>
+        <th>Precio medio</th>
+        <th>Actualizar</th>
+        <th>Borrar</th>
+      </tr>
+    </table>
+  </body>
+</html>
+
