@@ -1,0 +1,153 @@
+heat_template_version: 2017-02-24
+
+description: Crea dos redes privadas, un router, el FW, el LB, el admin server y 3 app server
+
+parameters:
+
+
+  public_net_name:
+    type: string
+    default: ExtNet
+    description: Nombre de la red publica
+
+  private_net_name: 
+    type: string 
+    description: Nombre de la red privada 1
+
+  private_subnet_name: 
+    type: string 
+    description: Nombre de la subred privada 1
+
+  private_subnet_cidr: 
+    type: string 
+    description: CIDR de la subred privada 1
+
+  private_subnet_gateway: 
+    type: string 
+    description: Pasarela de la subred privada 1
+
+  private_net_2_name: 
+    type: string 
+    description: Nombre de la red privada 2
+
+  private_subnet_2_name: 
+    type: string 
+    description: Nombre de la subred privada 2
+
+  private_subnet_2_cidr: 
+    type: string 
+    description: CIDR de la subred privada 2
+
+
+  zk_1_ip_address:
+    type: string
+    description: Direccion ip nodo ZooKeeper 1
+
+  zk_2_ip_address:
+    type: string
+    description: Direccion ip nodo ZooKeeper 2
+
+  zk_3_ip_address:
+    type: string
+    description: Direccion ip nodo ZooKeeper 3
+
+resources:
+
+ 
+  zk_server_1:
+    type: zk_server.yaml
+    depends_on: [ private_net_2, private_subnet_2 ]
+    properties:
+      server_name: zk_server_1
+      private_net_name: { get_param: private_net_2_name }
+      private_subnet_name: { get_param: private_subnet_2_name }
+      private_ip_address: { get_param: zk_1_ip_address }
+      zk_id: 1
+      zk_1_ip_address: { get_param: zk_1_ip_address }
+      zk_2_ip_address: { get_param: zk_2_ip_address }
+      zk_3_ip_address: { get_param: zk_3_ip_address }
+
+  zk_server_2:
+    type: zk_server.yaml
+    depends_on: [ private_net_2, private_subnet_2 ]
+    properties:
+      server_name: zk_server_2
+      private_net_name: { get_param: private_net_2_name }
+      private_subnet_name: { get_param: private_subnet_2_name }
+      private_ip_address: { get_param: zk_2_ip_address }
+      zk_id: 2
+      zk_1_ip_address: { get_param: zk_1_ip_address }
+      zk_2_ip_address: { get_param: zk_2_ip_address }
+      zk_3_ip_address: { get_param: zk_3_ip_address }
+  zk_server_3:
+    type: zk_server.yaml
+    depends_on: [ private_net_2, private_subnet_2 ]
+    properties:
+      server_name: zk_server_3
+      private_net_name: { get_param: private_net_2_name }
+      private_subnet_name: { get_param: private_subnet_2_name }
+      private_ip_address: { get_param: zk_3_ip_address }
+      zk_id: 3
+      zk_1_ip_address: { get_param: zk_1_ip_address }
+      zk_2_ip_address: { get_param: zk_2_ip_address }
+      zk_3_ip_address: { get_param: zk_3_ip_address }
+
+  # db_server:
+  #   type: zk_server.yaml
+  #   depends_on: [ private_net_2, private_subnet_2 ]
+  #   properties:
+  #     server_name: db_server
+  #     private_net_name: { get_param: private_net_2_name }
+  #     private_subnet_name: { get_param: private_subnet_2_name }
+  #     image: cirros-0.3.4-x86_64-vnx
+
+  private_net: 
+    type: OS::Neutron::Net 
+    properties: 
+      name: { get_param: private_net_name }
+
+  private_subnet: 
+    type: OS::Neutron::Subnet 
+    properties: 
+      name: { get_param: private_subnet_name }
+      network_id: { get_resource: private_net }
+      cidr: { get_param: private_subnet_cidr }
+      gateway_ip: { get_param: private_subnet_gateway }
+
+  private_net_2: 
+    type: OS::Neutron::Net 
+    properties: 
+      name: { get_param: private_net_2_name }
+
+  private_subnet_2: 
+    type: OS::Neutron::Subnet 
+    properties: 
+      name: { get_param: private_subnet_2_name }
+      network_id: { get_resource: private_net_2 }
+      cidr: { get_param: private_subnet_2_cidr }
+
+  mi_router:
+    type: OS::Neutron::Router
+    properties:
+      name: mi_router
+      external_gateway_info: 
+        network: { get_param: public_net_name }
+
+  interfaz_router:
+    type: OS::Neutron::RouterInterface
+    depends_on: [ mi_router ]
+    properties:
+      router: { get_resource: mi_router }
+      subnet: { get_resource: private_subnet }
+
+outputs:
+
+  zk_server_1_ip:
+    description: Direccion IP en la red privada de la maquina
+    value: { get_attr: [ zk_server_1, first_address ] }
+  zk_server_2_ip:
+    description: Direccion IP en la red privada de la maquina
+    value: { get_attr: [ zk_server_2, first_address ] }
+  zk_server_3_ip:
+    description: Direccion IP en la red privada de la maquina
+    value: { get_attr: [ zk_server_3, first_address ] }

@@ -1,0 +1,14 @@
+#cloud-config
+
+# Create id file
+write_files:
+  - content: |
+      1
+    path: /var/zookeeper/myid
+
+# Modify cfg file with IP addresses and run ZK
+runcmd:
+  - [ sed, -i, 's/AAAA/10.1.1.11/', /zk.cfg]
+  - [ sed, -i, 's/BBBB/10.1.1.12/', /zk.cfg]
+  - [ sed, -i, 's/CCCC/10.1.1.22/', /zk.cfg]
+  - [ java, -cp, "/zookeeper-3.4.9/zookeeper-3.4.9.jar:/zookeeper-3.4.9/lib/log4j-1.2.16.jar:/zookeeper-3.4.9/lib/slf4j-log4j12-1.6.1.jar:/zookeeper-3.4.9/lib/slf4j-api-1.6.1.jar:/zookeeper-3.4.9/conf", org.apache.zookeeper.server.quorum.QuorumPeerMain, /zk.cfg ]

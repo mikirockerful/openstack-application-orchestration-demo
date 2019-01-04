@@ -1,16 +1,32 @@
 #cloud-config
 
-#Modify hostname and FQDN
-hostname: miservidor
-fqdn: miservidor.example.com
-manage_etc_hosts: true
-
 #Install Java
 package_update: true
 packages:
   - openjdk-8-jre
 
-#Check
+#Install java
 runcmd:
   - [ wget, "https://archive.apache.org/dist/zookeeper/zookeeper-3.4.9/zookeeper-3.4.9.tar.gz"]
   - [ tar, -xzf, "/zookeeper-3.4.9.tar.gz" ]
+  - [ mkdir, /var/zookeeper]
+
+# Create cluster config file
+write_files:
+  - content: |
+      # The number of milliseconds of each tick
+      tickTime=2000
+      # The number of ticks that the initial 
+      # synchronization phase can take
+      initLimit=10
+      # The number of ticks that can pass between 
+      # sending a request and getting an acknowledgement
+      syncLimit=5
+      # the directory where the snapshot is stored.
+      dataDir=/var/zookeeper
+      # the port at which the clients will connect
+      clientPort=2181
+      server.1=AAAA:2888:3888
+      server.2=BBBB:2888:3888
+      server.3=CCCC:2888:3888
+    path: /zk.cfg
