@@ -179,7 +179,7 @@ resources:
       private_subnet_name: { get_param: private_subnet_name }
       private_net_2_name: { get_param: private_net_2_name }
       private_subnet_2_name: { get_param: private_subnet_2_name }
-      db_ip_address: { get_param: db_server_ip_address }
+      db_server_ip_address: { get_param: db_server_ip_address }
       zk_1_ip_address: { get_param: zk_1_ip_address }
       zk_2_ip_address: { get_param: zk_2_ip_address }
       zk_3_ip_address: { get_param: zk_3_ip_address }
@@ -192,7 +192,7 @@ resources:
       private_subnet_name: { get_param: private_subnet_name }
       private_net_2_name: { get_param: private_net_2_name }
       private_subnet_2_name: { get_param: private_subnet_2_name }
-      db_ip_address: { get_param: db_server_ip_address }
+      db_server_ip_address: { get_param: db_server_ip_address }
       zk_1_ip_address: { get_param: zk_1_ip_address }
       zk_2_ip_address: { get_param: zk_2_ip_address }
       zk_3_ip_address: { get_param: zk_3_ip_address }
@@ -205,7 +205,7 @@ resources:
       private_subnet_name: { get_param: private_subnet_name }
       private_net_2_name: { get_param: private_net_2_name }
       private_subnet_2_name: { get_param: private_subnet_2_name }
-      db_ip_address: { get_param: db_server_ip_address }
+      db_server_ip_address: { get_param: db_server_ip_address }
       zk_1_ip_address: { get_param: zk_1_ip_address }
       zk_2_ip_address: { get_param: zk_2_ip_address }
       zk_3_ip_address: { get_param: zk_3_ip_address }
@@ -253,10 +253,9 @@ resources:
     depends_on: [ private_net_2, private_subnet_2 ]
     properties:
       server_name: db_server
-      private_net_name: { get_param: private_net_2_name }
-      private_subnet_name: { get_param: private_subnet_2_name }
+      private_net_2_name: { get_param: private_net_2_name }
+      private_subnet_2_name: { get_param: private_subnet_2_name }
       private_ip_address: { get_param: db_server_ip_address }
-      image: mongo_image
 
   private_net: 
     type: OS::Neutron::Net 
