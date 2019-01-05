@@ -71,6 +71,8 @@ resources:
         str_replace:
           template: |
             #cloud-config
+            bootcmd:
+             - "ifdir='/etc/network/interfaces.d'; for iface in $(ip -o link | cut -d: -f2 | tr -d ' ' | grep ^ens); do if [ ! -e ${ifdir}'/'${iface}'.cfg' ]; then echo 'Creating iface file for '${iface}; printf 'auto '${iface}'\niface '${iface}' inet dhcp\n' > $ifdir'/'$iface'.cfg'; ifup ${iface}; fi; done"
 
             # Create id file
             write_files:
