@@ -33,22 +33,6 @@ parameters:
     type: string
     description: Direccion ip en la subred privada 1
 
-  zk_1_ip_address:
-    type: string
-    description: Direccion ip nodo ZooKeeper 1
-
-  zk_2_ip_address:
-    type: string
-    description: Direccion ip nodo ZooKeeper 2
-
-  zk_3_ip_address:
-    type: string
-    description: Direccion ip nodo ZooKeeper 3
-
-  zk_id:
-    type: string
-    description: ID zookeeper en var zookeeper myid
-
 resources:
 
   app_server:
@@ -59,29 +43,6 @@ resources:
       image: { get_param: image }
       flavor: { get_param: flavor }
       #key_name: { get_resource: clave_generada }
-      user_data_format: RAW
-      user_data: 
-        str_replace:
-          template: |
-            #cloud-config
-
-            # Create id file
-            write_files:
-              - content: |
-                  $id
-                path: /var/zookeeper/myid
-
-            # Modify cfg file with IP addresses and run ZK
-            runcmd:
-              - [ sed, -i, 's/AAAA/$ip1/', /zk.cfg]
-              - [ sed, -i, 's/BBBB/$ip2/', /zk.cfg]
-              - [ sed, -i, 's/CCCC/$ip3/', /zk.cfg]
-              - [ java, -cp, "/zookeeper-3.4.9/zookeeper-3.4.9.jar:/zookeeper-3.4.9/lib/log4j-1.2.16.jar:/zookeeper-3.4.9/lib/slf4j-log4j12-1.6.1.jar:/zookeeper-3.4.9/lib/slf4j-api-1.6.1.jar:/zookeeper-3.4.9/conf", org.apache.zookeeper.server.quorum.QuorumPeerMain, /zk.cfg ]
-          params:
-              $id:  { get_param: zk_id }
-              $ip1: { get_param: zk_1_ip_address }
-              $ip2: { get_param: zk_2_ip_address }
-              $ip3: { get_param: zk_3_ip_address }
       networks:
         - port: { get_resource: app_server_port0 }
 

@@ -8,6 +8,10 @@ parameters:
   private_net_2_name: red_privada_2
   private_subnet_2_name: subred_privada_2
   private_subnet_2_cidr: 172.16.0.0/24
+  zk_1_ip_address: 172.16.0.101
+  zk_2_ip_address: 172.16.0.102
+  zk_3_ip_address: 172.16.0.103
+  db_server_ip_address: 172.16.0.200
   public_net_name: ExtNet
   admin_server_ssh_port: 2018
   load_balancer_algorithm: ROUND_ROBIN
@@ -15,3 +19,4 @@ parameters:
   load_balancer_listener_port: 80
   load_balancer_listener_protocol: HTTP
   app_server_listening_port: 80
+

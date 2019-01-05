@@ -83,6 +83,22 @@ parameters:
     type: string
     description: Puerto en el que los servidores web escuchan
 
+  zk_1_ip_address:
+    type: string
+    description: Direccion ip nodo ZooKeeper 1
+
+  zk_2_ip_address:
+    type: string
+    description: Direccion ip nodo ZooKeeper 2
+
+  zk_3_ip_address:
+    type: string
+    description: Direccion ip nodo ZooKeeper 3
+
+  db_server_ip_address:
+    type: string
+    description: Direccion ip servidor de base de datos
+
 resources:
 
   clave_generada:
@@ -179,6 +195,12 @@ resources:
       server_name: zk_server_1
       private_net_name: { get_param: private_net_2_name }
       private_subnet_name: { get_param: private_subnet_2_name }
+      private_ip_address: { get_param: zk_1_ip_address }
+      zk_id: 1
+      zk_1_ip_address: { get_param: zk_1_ip_address }
+      zk_2_ip_address: { get_param: zk_2_ip_address }
+      zk_3_ip_address: { get_param: zk_3_ip_address }
+
   zk_server_2:
     type: zk_server.yaml
     depends_on: [ private_net_2, private_subnet_2 ]
@@ -186,6 +208,11 @@ resources:
       server_name: zk_server_2
       private_net_name: { get_param: private_net_2_name }
       private_subnet_name: { get_param: private_subnet_2_name }
+      private_ip_address: { get_param: zk_2_ip_address }
+      zk_id: 2
+      zk_1_ip_address: { get_param: zk_1_ip_address }
+      zk_2_ip_address: { get_param: zk_2_ip_address }
+      zk_3_ip_address: { get_param: zk_3_ip_address }
   zk_server_3:
     type: zk_server.yaml
     depends_on: [ private_net_2, private_subnet_2 ]
@@ -193,14 +220,20 @@ resources:
       server_name: zk_server_3
       private_net_name: { get_param: private_net_2_name }
       private_subnet_name: { get_param: private_subnet_2_name }
+      private_ip_address: { get_param: zk_3_ip_address }
+      zk_id: 3
+      zk_1_ip_address: { get_param: zk_1_ip_address }
+      zk_2_ip_address: { get_param: zk_2_ip_address }
+      zk_3_ip_address: { get_param: zk_3_ip_address }
 
   db_server:
-    type: zk_server.yaml
+    type: db_server.yaml
     depends_on: [ private_net_2, private_subnet_2 ]
     properties:
       server_name: db_server
       private_net_name: { get_param: private_net_2_name }
       private_subnet_name: { get_param: private_subnet_2_name }
+      private_ip_address: { get_param: db_server_ip_address }
       image: cirros-0.3.4-x86_64-vnx
 
   private_net: 
