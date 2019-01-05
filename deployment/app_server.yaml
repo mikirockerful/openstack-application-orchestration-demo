@@ -63,14 +63,12 @@ resources:
       image: { get_param: image }
       flavor: { get_param: flavor }
       #key_name: { get_resource: clave_generada }
-      networks:
-        - port: { get_resource: app_server_port0 }
-        - port: { get_resource: app_server_port1 }
       user_data_format: RAW
       user_data: 
         str_replace:
           template: |
             #cloud-config
+            
             bootcmd:
              - "ifdir='/etc/network/interfaces.d'; for iface in $(ip -o link | cut -d: -f2 | tr -d ' ' | grep ^ens); do if [ ! -e ${ifdir}'/'${iface}'.cfg' ]; then echo 'Creating iface file for '${iface}; printf 'auto '${iface}'\niface '${iface}' inet dhcp\n' > $ifdir'/'$iface'.cfg'; ifup ${iface}; fi; done"
 
@@ -87,12 +85,14 @@ resources:
             runcmd:
               - [ source, /app/app-openrc.sh ]
               - [ npm, start, --prefix, /app, >, /app/app_server.log, 2>&1 ]
-
           params:
               $mongo_ip:  { get_param: db_server_ip_address }
               $zk_1_ip: { get_param: zk_1_ip_address }
               $zk_2_ip: { get_param: zk_2_ip_address }
               $zk_3_ip: { get_param: zk_3_ip_address }
+      networks:
+        - port: { get_resource: app_server_port0 }
+        - port: { get_resource: app_server_port1 }
 
   app_server_port0:
     type: OS::Neutron::Port

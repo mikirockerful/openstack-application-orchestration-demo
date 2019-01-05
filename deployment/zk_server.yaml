@@ -23,15 +23,15 @@ parameters:
 
   private_net_name: 
     type: string 
-    description: Nombre de la red privada 1
+    description: Nombre de la red privada 2
 
   private_subnet_name: 
     type: string 
-    description: Nombre de la subred privada 1
+    description: Nombre de la subred privada 2
 
   private_ip_address:
     type: string
-    description: Direccion ip en la subred privada 1
+    description: Direccion ip en la subred privada 2
 
   zk_1_ip_address:
     type: string

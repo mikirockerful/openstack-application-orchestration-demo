@@ -3,4 +3,7 @@ parameters:
   private_subnet_name: subred_instalacion_software
   private_subnet_cidr: 192.168.100.0/24
   private_subnet_gateway: 192.168.100.1
+  private_net_2_name: red_privada_2
+  private_subnet_2_name: subred_privada_2
+  private_subnet_2_cidr: 172.16.0.0/24
   public_net_name: ExtNet
