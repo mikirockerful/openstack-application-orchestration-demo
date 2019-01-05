@@ -365,17 +365,13 @@ resources:
 
 outputs:
 
-  admin_server_private_ip:
-    description: Direccion IP en la red privada 2 de la maquina
-    value: { get_attr: [ admin_server, first_address ] }
+  admin_server_public_ip:
+    description: IP flotante externa de la maquina
+    value: { get_attr: [ admin_server_public, floating_ip_address ] }
 
   admin_server_private_ip_net1:
     description: Direccion IP en la red privada 1 de la maquina
     value: { get_attr: [ admin_server, networks, { get_param: private_net_name }, 0 ] }
-
-  admin_server_public_ip:
-    description: IP flotante externa de la maquina
-    value: { get_attr: [ admin_server_public, floating_ip_address ] }
 
   zk_server_1_ip:
     description: Direccion IP en la red privada de la maquina
@@ -386,6 +382,16 @@ outputs:
   zk_server_3_ip:
     description: Direccion IP en la red privada de la maquina
     value: { get_attr: [ zk_server_3, first_address ] }
+
+  app_server_1_ip:
+    description: Direccion IP en la red privada de la maquina
+    value: { get_attr: [ app_server_1, first_address ] }
+  app_server_2_ip:
+    description: Direccion IP en la red privada de la maquina
+    value: { get_attr: [ app_server_2, first_address ] }
+  app_server_3_ip:
+    description: Direccion IP en la red privada de la maquina
+    value: { get_attr: [ app_server_3, first_address ] }
 
   db_server_ip:
     description: Direccion IP en la red privada de la maquina
@@ -402,7 +408,3 @@ outputs:
   balanceador_public_ip:
     description: IP flotante externa del balanceador
     value: { get_attr: [ balanceador_public, floating_ip_address ] }
-
-  fw_policy:
-    description: Politica del FW
-    value: { get_attr: [ firewall_policy, name ]}

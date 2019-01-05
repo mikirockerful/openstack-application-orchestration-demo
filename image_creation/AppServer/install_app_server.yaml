@@ -91,3 +91,9 @@ resources:
     properties:
       router: { get_resource: mi_router }
       subnet: { get_resource: private_subnet }
+
+outputs:
+
+  app_server_instance:
+    description: Atributos del servidor de aplicaciones
+    value: { get_attr: [ app_server_public, floating_ip_address ] }
