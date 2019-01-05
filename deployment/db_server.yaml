@@ -18,7 +18,7 @@ parameters:
 
   image:
     type: string
-    default: db_image
+    default: mongo_image
     description: Nombre de la imagen
 
   private_net_2_name: 
