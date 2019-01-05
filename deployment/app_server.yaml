@@ -72,18 +72,13 @@ resources:
             bootcmd:
              - "ifdir='/etc/network/interfaces.d'; for iface in $(ip -o link | cut -d: -f2 | tr -d ' ' | grep ^ens); do if [ ! -e ${ifdir}'/'${iface}'.cfg' ]; then echo 'Creating iface file for '${iface}; printf 'auto '${iface}'\niface '${iface}' inet dhcp\n' > $ifdir'/'$iface'.cfg'; ifup ${iface}; fi; done"
 
-            # Create id file
-            write_files:
-              - content: |
-                  MONGODB_IP="$mongo_ip"
-                  ZOOKEEPER1_IP="$zk_1_ip"
-                  ZOOKEEPER2_IP="$zk_2_ip"
-                  ZOOKEEPER3_IP="$zk_3_ip"
-                path: /etc/environment
-
             # Load env variables and run the app
             runcmd:
-              - [ npm, start, --prefix, /app ]
+              - ' export MONGODB_IP=$mongo_ip'
+              - ' export ZOOKEEPER1_IP=$zk_1_ip'
+              - ' export ZOOKEEPER2_IP=$zk_2_ip'
+              - ' export ZOOKEEPER3_IP=$zk_3_ip'
+              - ' /app/run.sh '
           params:
               $mongo_ip:  { get_param: db_server_ip_address }
               $zk_1_ip: { get_param: zk_1_ip_address }
