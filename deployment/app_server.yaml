@@ -86,7 +86,7 @@ resources:
             # Load env variables and run the app
             runcmd:
               - [ source, /app/app-openrc.sh ]
-              - [ npm, start, --prefix, /app, >, /app/app_server.log ]
+              - [ npm, start, --prefix, /app, >, /app/app_server.log, 2>&1 ]
 
           params:
               $mongo_ip:  { get_param: db_server_ip_address }
