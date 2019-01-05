@@ -1,5 +1,8 @@
 #cloud-config
 
+bootcmd:
+ - "ifdir='/etc/network/interfaces.d'; for iface in $(ip -o link | cut -d: -f2 | tr -d ' ' | grep ^ens); do if [ ! -e ${ifdir}'/'${iface}'.cfg' ]; then echo 'Creating iface file for '${iface}; printf 'auto '${iface}'\niface '${iface}' inet dhcp\n' > $ifdir'/'$iface'.cfg'; ifup ${iface}; fi; done"
+
 # Modify sshd listening port from 22 to 2018
 runcmd:
   - [ sed, -i, '/Port 22/c\Port 2018', /etc/ssh/sshd_config]
