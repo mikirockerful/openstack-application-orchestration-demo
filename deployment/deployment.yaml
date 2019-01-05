@@ -400,13 +400,13 @@ outputs:
 
   app_server_1_ip:
     description: Direccion IP en la red privada de la maquina
-    value: { get_attr: [ app_server_1, first_address ] }
+    value: { get_attr: [ app_server_1, app_server ] }
   app_server_2_ip:
     description: Direccion IP en la red privada de la maquina
-    value: { get_attr: [ app_server_2, first_address ] }
+    value: { get_attr: [ app_server_2, app_server ] }
   app_server_3_ip:
     description: Direccion IP en la red privada de la maquina
-    value: { get_attr: [ app_server_3, first_address ] }
+    value: { get_attr: [ app_server_3, app_server ] }
 
   db_server_ip:
     description: Direccion IP en la red privada de la maquina
@@ -423,3 +423,7 @@ outputs:
   balanceador_public_ip:
     description: IP flotante externa del balanceador
     value: { get_attr: [ balanceador_public, floating_ip_address ] }
+
+  fw_policy:
+    description: Politica del FW
+    value: { get_attr: [ firewall_policy, name ]}

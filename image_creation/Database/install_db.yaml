@@ -18,7 +18,7 @@ parameters:
   private_subnet_cidr: 
     type: string 
     description: CIDR de la subred privada
- 
+
   private_subnet_gateway: 
     type: string 
     description: Pasarela de la subred privada
@@ -91,3 +91,9 @@ resources:
     properties:
       router: { get_resource: mi_router }
       subnet: { get_resource: private_subnet }
+
+outputs:
+
+  mongodb_instance:
+    description: IP de la máquina de mongodb
+    value: { get_attr: [ mongo_server_public, floating_ip_address ] }

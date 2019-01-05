@@ -6,7 +6,6 @@
 #  - nodejs
 #  - npm
 
-
 runcmd:
   - [ wget, "https://nodejs.org/dist/v10.2.0/node-v10.2.0-linux-x64.tar.gz"]
   - [ tar, -xzf, node-v10.2.0-linux-x64.tar.gz, --directory, /usr/local, --strip-components, 1]
