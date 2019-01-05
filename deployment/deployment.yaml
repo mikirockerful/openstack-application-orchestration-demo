@@ -104,7 +104,7 @@ resources:
   open_security_group:
     type: OS::Neutron::SecurityGroup
     properties:
-      name: test_open
+      name: open
       description: Deja pasar todo el trafico este-oeste
       rules: [
        {remote_ip_prefix: 0.0.0.0/0}]
