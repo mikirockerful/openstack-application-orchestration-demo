@@ -56,7 +56,7 @@ resources:
     properties:
       network_id: { get_param: private_net_name }
       security_groups:
-        - default
+        - open
       fixed_ips:
         - subnet_id: { get_param: private_subnet_name }
 
@@ -65,7 +65,7 @@ resources:
     properties:
       network_id: { get_param: private_net_2_name }
       security_groups:
-        - default
+        - open
       fixed_ips:
         - subnet_id: { get_param: private_subnet_2_name }
 

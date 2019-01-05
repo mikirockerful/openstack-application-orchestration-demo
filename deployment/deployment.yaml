@@ -101,6 +101,14 @@ parameters:
 
 resources:
 
+  open_security_group:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: test_open
+      description: Deja pasar todo el trafico este-oeste
+      rules: [
+       {remote_ip_prefix: 0.0.0.0/0}]
+
   clave_generada:
     type: OS::Nova::KeyPair
     properties:
@@ -138,19 +146,21 @@ resources:
 
   admin_server_port0:
     type: OS::Neutron::Port
+    depends_on: [ open_security_group ]
     properties:
       network_id: { get_resource: private_net }
       security_groups:
-        - default
+        - open
       fixed_ips:
         - subnet_id: { get_resource: private_subnet }
 
   admin_server_port1:
     type: OS::Neutron::Port
+    depends_on: [ open_security_group ]
     properties:
       network_id: { get_resource: private_net_2 }
       security_groups:
-        - default
+        - open
       fixed_ips:
         - subnet_id: { get_resource: private_subnet_2 }
 
