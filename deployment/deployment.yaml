@@ -4,19 +4,6 @@ description: Crea dos redes privadas, un router, el FW, el LB, el admin server y
 
 parameters:
 
-  flavor:
-    type: string
-    description: Flavor de la instancia
-    default: m1.tiny
-    constraints:
-      - allowed_values: [m1.nano, m1.tiny, m1.small, m1.smaller, m1.large]
-        description: Value must be one of m1.tiny, m1.small, m1.smaller or m1.large
-
-  image:
-    type: string
-    default: cirros-0.3.4-x86_64-vnx
-    description: Nombre de la imagen
-
   public_net_name:
     type: string
     default: ExtNet
@@ -132,9 +119,7 @@ resources:
     depends_on: [ clave_generada ]
     properties:
       name: admin_server
-      #image: { get_param: image }
       image: xenial-server-cloudimg-amd64-vnx
-      #flavor: { get_param: flavor }
       flavor: m1.smaller
       user_data_format: SOFTWARE_CONFIG
       user_data:
