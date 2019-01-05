@@ -91,3 +91,9 @@ resources:
     properties:
       router: { get_resource: mi_router }
       subnet: { get_resource: private_subnet }
+
+outputs:
+
+  zk_server_public_ip:
+    description: Atributos del servidor de aplicaciones
+    value: { get_attr: [ zk_server_public, floating_ip_address ] }

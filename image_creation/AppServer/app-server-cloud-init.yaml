@@ -1,7 +1,15 @@
 #cloud-config
 
 # Install node and npm
-package_update: true
-packages:
-  - nodejs
-  - npm
+#package_update: true
+#packages:
+#  - nodejs
+#  - npm
+
+
+runcmd:
+  - [ wget, "https://nodejs.org/dist/v10.2.0/node-v10.2.0-linux-x64.tar.gz"]
+  - [ tar, -xzf, node-v10.2.0-linux-x64.tar.gz, --directory, /usr/local, --strip-components, 1]
+  - [ git, clone, "https://github.com/chookly314/openstack-app.git", /app ]
+  - [ touch, /app/app-openrc.sh ]
+  - [ npm, install, --prefix, /app]
