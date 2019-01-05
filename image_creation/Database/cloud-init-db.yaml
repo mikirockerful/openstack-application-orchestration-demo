@@ -39,6 +39,10 @@
 # # Reload local package database
 # package_update: true
 
-# Install MongoDB
+# Install MongoDB 2.6
 packages:
   - mongodb
+
+# Create data directory
+runcmd:
+  - [ mkdir, -p, /data/db]

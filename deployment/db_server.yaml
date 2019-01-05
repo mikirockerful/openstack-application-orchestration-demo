@@ -43,6 +43,10 @@ resources:
       image: { get_param: image }
       flavor: { get_param: flavor }
       #key_name: { get_resource: clave_generada }
+      user_data: |
+        #cloud-config
+        runcmd:
+          - [ mongod, --smallfiles]
       networks:
         - port: { get_resource: app_server_port0 }
 
