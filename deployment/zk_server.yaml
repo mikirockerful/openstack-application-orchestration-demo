@@ -15,7 +15,7 @@ parameters:
     constraints:
       - allowed_values: [m1.nano, m1.tiny, m1.smaller]
         description: Value must be one of m1.nano, m1.tiny, m1.smaller
-  
+
   image:
     type: string
     default: zookeeper_image

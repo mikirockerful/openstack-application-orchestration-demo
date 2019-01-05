@@ -13,12 +13,12 @@ parameters:
     description: Flavor de la instancia
     default: m1.nano
     constraints:
-      - allowed_values: [m1.nano, m1.tiny, m1.small, m1.large]
-        description: Value must be one of m1.tiny, m1.small or m1.large
+      - allowed_values: [m1.nano, m1.tiny, m1.small, m1.smaller, m1.large]
+        description: Value must be one of m1.tiny, m1.small, m1.smaller or m1.large
 
   image:
     type: string
-    default: cirros-0.3.4-x86_64-vnx
+    default: app_server_image
     description: Nombre de la imagen
 
   private_net_name: 
@@ -37,6 +37,22 @@ parameters:
     type: string 
     description: Nombre de la subred privada 2
 
+  db_ip_address: 
+    type: string 
+    description: IP de la base de datos en la subred privada 2
+
+  zk_1_ip_address:
+    type: string
+    description: Direccion ip nodo ZooKeeper 1
+
+  zk_2_ip_address:
+    type: string
+    description: Direccion ip nodo ZooKeeper 2
+
+  zk_3_ip_address:
+    type: string
+    description: Direccion ip nodo ZooKeeper 3
+
 resources:
 
   app_server:
@@ -50,6 +66,31 @@ resources:
       networks:
         - port: { get_resource: app_server_port0 }
         - port: { get_resource: app_server_port1 }
+      user_data_format: RAW
+      user_data: 
+        str_replace:
+          template: |
+            #cloud-config
+
+            # Create id file
+            write_files:
+              - content: |
+                  export MONGODB_IP=$mongo_ip
+                  export ZOOKEEPER1_IP=$zk_1_ip
+                  export ZOOKEEPER2_IP=$zk_2_ip
+                  export ZOOKEEPER3_IP=$zk_3_ip
+                path: /app/app-openrc.sh
+
+            # Load env variables and run the app
+            runcmd:
+              - [ source, /app/app-openrc.sh ]
+              - [ npm, start, --prefix, /app, >, /app/app_server.log ]
+
+          params:
+              $mongo_ip:  { get_param: db_server_ip_address }
+              $zk_1_ip: { get_param: zk_1_ip_address }
+              $zk_2_ip: { get_param: zk_2_ip_address }
+              $zk_3_ip: { get_param: zk_3_ip_address }
 
   app_server_port0:
     type: OS::Neutron::Port

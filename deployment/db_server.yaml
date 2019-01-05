@@ -15,27 +15,27 @@ parameters:
     constraints:
       - allowed_values: [m1.nano, m1.tiny, m1.smaller]
         description: Value must be one of m1.nano, m1.tiny, m1.smaller
-  
+
   image:
     type: string
-    default: zookeeper_image
+    default: db_image
     description: Nombre de la imagen
 
-  private_net_name: 
+  private_net_2_name: 
     type: string 
-    description: Nombre de la red privada 1
+    description: Nombre de la red privada 2
 
-  private_subnet_name: 
+  private_subnet_2_name: 
     type: string 
-    description: Nombre de la subred privada 1
+    description: Nombre de la subred privada 2
 
   private_ip_address:
     type: string
-    description: Direccion ip en la subred privada 1
+    description: Direccion ip en la subred privada 2
 
 resources:
 
-  app_server:
+  db_server:
     type: OS::Nova::Server
     #depends_on: [ clave_generada ]
     properties:
@@ -48,16 +48,16 @@ resources:
         runcmd:
           - [ mongod, --smallfiles]
       networks:
-        - port: { get_resource: app_server_port0 }
+        - port: { get_resource: db_server_port0 }
 
-  app_server_port0:
+  db_server_port0:
     type: OS::Neutron::Port
     properties:
-      network_id: { get_param: private_net_name }
+      network_id: { get_param: private_net_2_name }
       security_groups:
         - open
       fixed_ips:
-        - subnet_id: { get_param: private_subnet_name }
+        - subnet_id: { get_param: private_subnet_2_name }
           ip_address: { get_param: private_ip_address }
 
 outputs:
