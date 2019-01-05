@@ -11,7 +11,7 @@ parameters:
   flavor:
     type: string
     description: Flavor de la instancia
-    default: m1.nano
+    default: m1.smaller
     constraints:
       - allowed_values: [m1.nano, m1.tiny, m1.small, m1.smaller, m1.large]
         description: Value must be one of m1.tiny, m1.small, m1.smaller or m1.large
@@ -37,7 +37,7 @@ parameters:
     type: string 
     description: Nombre de la subred privada 2
 
-  db_ip_address: 
+  db_server_ip_address: 
     type: string 
     description: IP de la base de datos en la subred privada 2
 

@@ -64,4 +64,4 @@ resources:
 outputs:
   first_address:
     description: Direccion IP en la red privada de la maquina
-    value: { get_attr: [ app_server, first_address ] }
+    value: { get_attr: [ db_server, first_address ] }
