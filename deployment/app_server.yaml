@@ -75,16 +75,15 @@ resources:
             # Create id file
             write_files:
               - content: |
-                  export MONGODB_IP=$mongo_ip
-                  export ZOOKEEPER1_IP=$zk_1_ip
-                  export ZOOKEEPER2_IP=$zk_2_ip
-                  export ZOOKEEPER3_IP=$zk_3_ip
-                path: /app/app-openrc.sh
+                  MONGODB_IP="$mongo_ip"
+                  ZOOKEEPER1_IP="$zk_1_ip"
+                  ZOOKEEPER2_IP="$zk_2_ip"
+                  ZOOKEEPER3_IP="$zk_3_ip"
+                path: /etc/environment
 
             # Load env variables and run the app
             runcmd:
-              - [ source, /app/app-openrc.sh ]
-              - [ npm, start, --prefix, /app, >, /app/app_server.log, 2>&1 ]
+              - [ npm, start, --prefix, /app ]
           params:
               $mongo_ip:  { get_param: db_server_ip_address }
               $zk_1_ip: { get_param: zk_1_ip_address }
